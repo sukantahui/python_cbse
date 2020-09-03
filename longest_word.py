@@ -9,6 +9,11 @@ def longest_word(filename):
 with open('myText.txt', 'r') as f:
     words = f.read().split()
     print(words)
+    print("Number of words {}".format(len(words)))
+    max_len = len(max(words, key=len))
+    print(max_len)
+    print(len('floccinaucinihilipilification'))
+
     # for line in f:
     #     print(line)
         # if len(line) > large_line_len:
