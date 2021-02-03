@@ -50,3 +50,34 @@ finally:
     if connection.is_connected():
         connection.close()
         print("MySQL connection is closed")
+
+
+# adding record with parameter
+
+def insertVariblesIntoTable(name):
+    try:
+        connection2 = mysql.connector.connect(host='localhost',
+                                              database='metal_db',
+                                              user='root',
+                                              password='sukantahui')
+        cursor2 = connection2.cursor()
+        mySql_insert_query2 = """insert into ledger_groups (id,group_name) 
+                            VALUES (NULL,%s)"""
+
+        recordTuple = (name,)
+        cursor2.execute(mySql_insert_query2, recordTuple)
+        connection2.commit()
+        print("Record inserted successfully into Laptop table")
+
+    except mysql.connector.Error as error2:
+        print("Failed to insert into MySQL table {}".format(error2))
+
+    finally:
+        if connection2.is_connected():
+            cursor2.close()
+            connection2.close()
+            print("MySQL connection is closed")
+
+
+insertVariblesIntoTable('test2')
+insertVariblesIntoTable('test3')
