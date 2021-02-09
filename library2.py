@@ -99,34 +99,88 @@ def addBook(serial, name, author, publisher, publication):
 
 
 def showBooks():
+    # Open database connection
+    db = pymysql.connect(host='localhost', database='library_db', user='root', password='sukantahui')
+
+    # prepare a cursor object using cursor() method
+    cursor = db.cursor()
+
+    # Prepare SQL query to INSERT a record into the database.
+    sql = "SELECT * FROM books"
     try:
-        connection = mysql.connector.connect(host='localhost',
-                                             database='library_db',
-                                             user='root',
-                                             password='sukantahui')
-        cursor = connection.cursor()
-        mySql_insert_query = """select * from books"""
-        cursor = connection.cursor(dictionary=True)
-        cursor.execute(mySql_insert_query)
-        records = cursor.fetchall()
-        print("Fetching each row using column name")
+        # Execute the SQL command
+        cursor.execute(sql)
+        # Fetch all the rows in a list of lists.
+        results = cursor.fetchall()
+        for row in results:
+            book_id = row[0]
+            serial = row[1]
+            book_name = row[2]
+            author = row[3]
+            publisher = row[4]
+            publication = row[5]
+            # Now print fetched result
+            print("ID = %s,Serial = %s,Title = %s,Author = %s,Publisher = %s, Edition = %s" % (
+                book_id, serial, book_name, author, publisher, publication))
+    except:
+        print("Error: unable to fetch data")
 
-        for row in records:
-            id = row["id"]
-            name = row["book_name"]
-            print(id, name)
+    # disconnect from server
+    db.close()
 
-    except mysql.connector.Error as error:
-        print("Failed to insert into MySQL table {}".format(error))
 
-    finally:
-        if connection.is_connected():
-            cursor.close()
-            connection.close()
-            print("MySQL connection is closed")
+def updateBooks():
+    # Open database connection
+    db = pymysql.connect(host='localhost', database='library_db', user='root', password='sukantahui')
+
+    # prepare a cursor object using cursor() method
+    cursor = db.cursor()
+
+    # Prepare SQL query to UPDATE required records
+    sql = "UPDATE BOOKS SET publication = publication + 1  WHERE id = '%d'" % (3)
+
+    try:
+        # Execute the SQL command
+        cursor.execute(sql)
+        print('updated')
+        # Commit your changes in the database
+        db.commit()
+    except:
+        # Rollback in case there is any error
+        print('unable to update')
+        db.rollback()
+
+    # disconnect from server
+    db.close()
+
+
+def deleteBooks(book_id):
+    # Open database connection
+    db = pymysql.connect(host='localhost', database='library_db', user='root', password='sukantahui')
+
+    # prepare a cursor object using cursor() method
+    cursor = db.cursor()
+
+    # Prepare SQL query to DELETE required records
+    sql = "DELETE FROM books WHERE id = '%d'" % (book_id)
+    try:
+        # Execute the SQL command
+        cursor.execute(sql)
+        # Commit your changes in the database
+        print("Book Deleted",book_id)
+        db.commit()
+    except:
+        # Rollback in case there is any error
+        db.rollback()
+
+    # disconnect from server
+    db.close()
 
 
 # addBook("1234", "Suman Ghosh", "Dinesh", "ABP", 2020)
 # showBooks()
 
-addBook2("1234", "Suman Ghosh", "Dinesh", "ABP", 2020)
+addBook2("1234", "xSuman Ghosh", "Dinesh", "ABP", 2020)
+showBooks()
+updateBooks()
+deleteBooks(7)
