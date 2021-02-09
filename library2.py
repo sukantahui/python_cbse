@@ -21,6 +21,7 @@ def createDatabase():
               publisher varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
               publication int unsigned DEFAULT NULL,
               issue_date datetime DEFAULT NULL,
+              is_issued tinyint DEFAULT '0',
               PRIMARY KEY (id)
             ) ENGINE=InnoDB"""
     cursor.execute(sql)
@@ -38,6 +39,7 @@ def createDatabase():
           PRIMARY KEY (id)
         ) ENGINE = InnoDB"""
     cursor.execute(sql)
+
 
 # createDatabase()
 
@@ -101,12 +103,38 @@ def showBooks():
                 book_id, serial, book_name, author, publisher, publication))
     except:
         print("Error: unable to fetch data")
+    # disconnect from server
+    db.close()
+
+
+def getBookBySerial(find_serial):
+    # Open database connection
+    db = pymysql.connect(host='localhost', database='library_db', user='root', password='sukantahui')
+
+    # prepare a cursor object using cursor() method
+    cursor = db.cursor()
+
+    # Prepare SQL query to INSERT a record into the database.
+    sql = "SELECT * FROM books where serial = %s"
+    try:
+        # Execute the SQL command
+        cursor.execute(sql, find_serial)
+        # Fetch all the rows in a list of lists.
+        row = cursor.fetchone()
+        if row == None:
+            return 0
+        else:
+            return row[0]
+
+    except:
+        return 0
+        print("Error: unable to fetch data")
 
     # disconnect from server
     db.close()
 
 
-def updateBooks():
+def updateBooks(update_book_id, name, author, publisher, publication):
     # Open database connection
     db = pymysql.connect(host='localhost', database='library_db', user='root', password='sukantahui')
 
@@ -114,11 +142,11 @@ def updateBooks():
     cursor = db.cursor()
 
     # Prepare SQL query to UPDATE required records
-    sql = "UPDATE BOOKS SET publication = publication + 1  WHERE id = '%s'"
+    sql = "update books SET  book_name = %s ,author = %s,publisher = %s ,publication = %s  WHERE id = %s"
 
     try:
         # Execute the SQL command
-        cursor.execute(sql, (3))
+        cursor.execute(sql, (name, author, publisher, publication, update_book_id))
         print('updated')
         # Commit your changes in the database
         db.commit()
@@ -191,9 +219,82 @@ def addMember(serial, name, author, publisher, publication):
 # showBooks()
 
 today = datetime.date.today()
-createDatabase()
-addBook("1234", "xSuman Ghosh", "Dinesh", "ABP", 2020)
-showBooks()
-updateBooks()
-deleteBooks(7)
-print(today)
+# createDatabase()
+# addBook("1234", "xSuman Ghosh", "Dinesh", "ABP", 2020)
+# showBooks()
+# updateBooks()
+# deleteBooks(7)
+
+
+project = "SBJW"
+print("Welcome to ", project)
+while True:
+    print("Main Menu")
+    print("1. book")
+    print("2. Member")
+    print("3. Transaction")
+    print("4. Report")
+    print("9. Exit")
+
+    ch1 = int(input("Enter your Choice in Main Menu: "))
+    if ch1 == 9:
+        break
+    elif ch1 < 1 or ch1 > 5:
+        print("Wrong choice ...............")
+
+    if ch1 == 1:
+        # Book area
+        while True:
+            print("\tBook Menu")
+            print("\t1. Add")
+            print("\t2. Update")
+            print("\t3. Delete")
+            print("\t4. Display")
+            print("\t9. Exit Book Menu")
+            chBook = int(input("\tEnter your Choice in Book Menu: "))
+            if chBook == 9:
+                break
+            elif chBook < 1 or chBook > 5:
+                print("\tWrong choice in book menu ...............")
+
+            if chBook == 1:
+                serial = input("\t\tEnter book Serial: ")
+                title = input("\t\tBook Title: ")
+                author = input("\t\tAuthor Name: ")
+                publisher = input("\t\tPublisher: ")
+                edition = int(input("\t\tEdition: "))
+                addBook(serial, title, author, publisher, edition)
+            if chBook == 2:
+                # showBooks()
+                book_serial = input("\t\tEnter Book serial to search: ")
+                book_id = getBookBySerial(book_serial)
+                if book_id == 0:
+                    print("This serial does not exist")
+                else:
+                    title = input("\t\tBook Title: ")
+                    author = input("\t\tAuthor Name: ")
+                    publisher = input("\t\tPublisher: ")
+                    edition = int(input("\t\tEdition: "))
+                    updateBooks(book_id, title, author, publisher, edition)
+            if chBook == 3:
+                book_serial = input("\t\tEnter Book serial to search for delete: ")
+                book_id = getBookBySerial(book_serial)
+                if book_id == 0:
+                    print("This serial does not exist")
+                else:
+                    deleteBooks(book_id)
+            if chBook == 4:
+                showBooks()
+    if ch1 == 2:
+        while True:
+            print("\tMember Menu")
+            print("\t1. Add")
+            print("\t2. Update")
+            print("\t3. Delete")
+            print("\t4. Display")
+            print("\t9. Exit Member Menu")
+            chMember = int(input("\tEnter your Choice in Member Menu: "))
+            if chMember == 9:
+                break
+            elif chMember < 1 or chMember > 5:
+                print("\tWrong choice in member menu ...............")
