@@ -1,6 +1,7 @@
 import pymysql
 import datetime
 
+
 def createDatabase():
     # Open database connection
     db = pymysql.connect(host='localhost', database='library_db', user='root', password='sukantahui')
@@ -24,12 +25,25 @@ def createDatabase():
             ) ENGINE=InnoDB"""
     cursor.execute(sql)
 
+    cursor.execute("DROP TABLE IF EXISTS members")
+
+    sql = """CREATE TABLE members (
+           id BIGINT UNSIGNED AUTO_INCREMENT,
+           serial varchar(20) DEFAULT NULL,
+           member_name VARCHAR(255),
+           phone VARCHAR(20),
+           doj DATETIME,
+           display TINYINT DEFAULT '1',
+           inforce TINYINT DEFAULT '1',
+          PRIMARY KEY (id)
+        ) ENGINE = InnoDB"""
+    cursor.execute(sql)
 
 # createDatabase()
 
 
 # adding book
-def addBook2(serial, name, author, publisher, publication):
+def addBook(serial, name, author, publisher, publication):
     # Open database connection
     db = pymysql.connect(host='localhost', database='library_db', user='root', password='sukantahui')
 
@@ -140,12 +154,45 @@ def deleteBooks(book_id):
     db.close()
 
 
+# adding member functions
+def addMember(serial, name, author, publisher, publication):
+    # Open database connection
+    db = pymysql.connect(host='localhost', database='library_db', user='root', password='sukantahui')
+
+    # prepare a cursor object using cursor() method
+    cursor = db.cursor()
+
+    # Prepare SQL query to INSERT a record into the database.
+    sql = """insert into books (
+                                   id
+                                  ,serial
+                                  ,book_name
+                                  ,author
+                                  ,publisher
+                                  ,publication
+                                ) VALUES (
+                                  NULL, '%s','%s', '%s', '%s','%d'
+                                )""" % (serial, name, author, publisher, publication)
+    try:
+        # Execute the SQL command
+        cursor.execute(sql)
+        # Commit your changes in the database
+        print("done")
+        db.commit()
+    except:
+        # Rollback in case there is any error
+        db.rollback()
+
+    # disconnect from server
+    db.close()
+
+
 # addBook("1234", "Suman Ghosh", "Dinesh", "ABP", 2020)
 # showBooks()
 
 today = datetime.date.today()
-
-addBook2("1234", "xSuman Ghosh", "Dinesh", "ABP", 2020)
+createDatabase()
+addBook("1234", "xSuman Ghosh", "Dinesh", "ABP", 2020)
 showBooks()
 updateBooks()
 deleteBooks(7)
