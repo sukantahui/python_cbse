@@ -1,10 +1,5 @@
-import os
-import mysql.connector
-from mysql.connector import Error
-from mysql.connector import errorcode
-
 import pymysql
-
+import datetime
 
 def createDatabase():
     # Open database connection
@@ -24,6 +19,7 @@ def createDatabase():
               author varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
               publisher varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
               publication int unsigned DEFAULT NULL,
+              issue_date datetime DEFAULT NULL,
               PRIMARY KEY (id)
             ) ENGINE=InnoDB"""
     cursor.execute(sql)
@@ -65,39 +61,6 @@ def addBook2(serial, name, author, publisher, publication):
     db.close()
 
 
-def addBook(serial, name, author, publisher, publication):
-    try:
-        connection = mysql.connector.connect(host='localhost',
-                                             database='library_db',
-                                             user='root',
-                                             password='sukantahui')
-        cursor2 = connection.cursor()
-        mySql_insert_query2 = """insert into books (
-                                   id
-                                  ,serial
-                                  ,book_name
-                                  ,author
-                                  ,publisher
-                                  ,publication
-                                ) VALUES (
-                                   NULL, %s,%s, %s, %s,%s
-                                )"""
-
-        recordTuple = (serial, name, author, publisher, publication)
-        cursor2.execute(mySql_insert_query2, recordTuple)
-        connection.commit()
-        print("Record inserted successfully into Books")
-
-    except mysql.connector.Error as error2:
-        print("Failed to insert into MySQL table {}".format(error2))
-
-    finally:
-        if connection.is_connected():
-            cursor2.close()
-            connection.close()
-            print("MySQL connection is closed")
-
-
 def showBooks():
     # Open database connection
     db = pymysql.connect(host='localhost', database='library_db', user='root', password='sukantahui')
@@ -137,11 +100,11 @@ def updateBooks():
     cursor = db.cursor()
 
     # Prepare SQL query to UPDATE required records
-    sql = "UPDATE BOOKS SET publication = publication + 1  WHERE id = '%d'" % (3)
+    sql = "UPDATE BOOKS SET publication = publication + 1  WHERE id = '%s'"
 
     try:
         # Execute the SQL command
-        cursor.execute(sql)
+        cursor.execute(sql, (3))
         print('updated')
         # Commit your changes in the database
         db.commit()
@@ -167,7 +130,7 @@ def deleteBooks(book_id):
         # Execute the SQL command
         cursor.execute(sql)
         # Commit your changes in the database
-        print("Book Deleted",book_id)
+        print("Book Deleted", book_id)
         db.commit()
     except:
         # Rollback in case there is any error
@@ -180,7 +143,10 @@ def deleteBooks(book_id):
 # addBook("1234", "Suman Ghosh", "Dinesh", "ABP", 2020)
 # showBooks()
 
+today = datetime.date.today()
+
 addBook2("1234", "xSuman Ghosh", "Dinesh", "ABP", 2020)
 showBooks()
 updateBooks()
 deleteBooks(7)
+print(today)
