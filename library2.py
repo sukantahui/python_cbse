@@ -183,7 +183,7 @@ def deleteBooks(book_id):
 
 
 # adding member functions
-def addMember(serial, name, author, publisher, publication):
+def addMember(in_serial,in_name,in_phone):
     # Open database connection
     db = pymysql.connect(host='localhost', database='library_db', user='root', password='sukantahui')
 
@@ -191,21 +191,18 @@ def addMember(serial, name, author, publisher, publication):
     cursor = db.cursor()
 
     # Prepare SQL query to INSERT a record into the database.
-    sql = """insert into books (
-                                   id
-                                  ,serial
-                                  ,book_name
-                                  ,author
-                                  ,publisher
-                                  ,publication
-                                ) VALUES (
-                                  NULL, '%s','%s', '%s', '%s','%d'
-                                )""" % (serial, name, author, publisher, publication)
+    sql = """insert into members (
+           id
+          ,serial
+          ,member_name
+          ,phone
+        ) VALUES (NULL,%s,%s,%s
+        )"""
     try:
         # Execute the SQL command
-        cursor.execute(sql)
+        cursor.execute(sql,(in_serial,in_name,in_phone))
         # Commit your changes in the database
-        print("done")
+        print("Member added")
         db.commit()
     except:
         # Rollback in case there is any error
@@ -298,3 +295,9 @@ while True:
                 break
             elif chMember < 1 or chMember > 5:
                 print("\tWrong choice in member menu ...............")
+
+            if chMember == 1:
+                serial = input("\t\tEnter Member Serial: ")
+                name = input("\t\tMember Name: ")
+                phone = input("\t\tPhone: ")
+                addMember(serial,name,phone)
