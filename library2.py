@@ -20,6 +20,7 @@ def createDatabase():
               author varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
               publisher varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
               publication int unsigned DEFAULT NULL,
+              member_id bigint unsigned DEFAULT NULL,
               issue_date datetime DEFAULT NULL,
               is_issued tinyint DEFAULT '0',
               PRIMARY KEY (id)
@@ -39,13 +40,16 @@ def createDatabase():
           PRIMARY KEY (id)
         ) ENGINE = InnoDB"""
     cursor.execute(sql)
+    # adding self as a member
+    now = datetime.datetime.utcnow()
+    addMember(1, "self", "9143656893", now)
 
 
 # createDatabase()
 
 
 # adding book
-def addBook(serial, name, author, publisher, publication):
+def addBook(serial, name, author, publisher, publication, member_id):
     # Open database connection
     db = pymysql.connect(host='localhost', database='library_db', user='root', password='sukantahui')
 
@@ -60,12 +64,13 @@ def addBook(serial, name, author, publisher, publication):
                                   ,author
                                   ,publisher
                                   ,publication
+                                  ,member_id
                                 ) VALUES (
-                                  NULL, '%s','%s', '%s', '%s','%d'
-                                )""" % (serial, name, author, publisher, publication)
+                                  NULL, %s,%s, %s, %s,%s,%s
+                                )"""
     try:
         # Execute the SQL command
-        cursor.execute(sql)
+        cursor.execute(sql,(serial, name, author, publisher, publication,member_id))
         # Commit your changes in the database
         print("done")
         db.commit()
@@ -183,7 +188,7 @@ def deleteBooks(book_id):
 
 
 # adding member functions
-def addMember(in_serial,in_name,in_phone):
+def addMember(in_serial,in_name,in_phone, in_date):
     # Open database connection
     db = pymysql.connect(host='localhost', database='library_db', user='root', password='sukantahui')
 
@@ -196,11 +201,12 @@ def addMember(in_serial,in_name,in_phone):
           ,serial
           ,member_name
           ,phone
-        ) VALUES (NULL,%s,%s,%s
+          ,doj
+        ) VALUES (NULL,%s,%s,%s,%s
         )"""
     try:
         # Execute the SQL command
-        cursor.execute(sql,(in_serial,in_name,in_phone))
+        cursor.execute(sql,(in_serial,in_name,in_phone,in_date))
         # Commit your changes in the database
         print("Member added")
         db.commit()
@@ -260,7 +266,7 @@ while True:
                 author = input("\t\tAuthor Name: ")
                 publisher = input("\t\tPublisher: ")
                 edition = int(input("\t\tEdition: "))
-                addBook(serial, title, author, publisher, edition)
+                addBook(serial, title, author, publisher, edition,1)
             if chBook == 2:
                 # showBooks()
                 book_serial = input("\t\tEnter Book serial to search: ")
@@ -300,4 +306,5 @@ while True:
                 serial = input("\t\tEnter Member Serial: ")
                 name = input("\t\tMember Name: ")
                 phone = input("\t\tPhone: ")
-                addMember(serial,name,phone)
+                now = datetime.datetime.utcnow()
+                addMember(serial,name,phone,now)
