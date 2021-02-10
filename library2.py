@@ -217,6 +217,32 @@ def addMember(in_serial,in_name,in_phone, in_date):
     # disconnect from server
     db.close()
 
+def getMemberBySerial(in_serial):
+    # Open database connection
+    db = pymysql.connect(host='localhost', database='library_db', user='root', password='sukantahui')
+
+    # prepare a cursor object using cursor() method
+    cursor = db.cursor()
+
+    # Prepare SQL query to INSERT a record into the database.
+    sql = "SELECT * FROM members where serial = %s"
+    try:
+        # Execute the SQL command
+        cursor.execute(sql, in_serial)
+        # Fetch all the rows in a list of lists.
+        row = cursor.fetchone()
+        if row == None:
+            return 0
+        else:
+            return row[0]
+
+    except:
+        return 0
+        print("Error: unable to fetch data")
+
+    # disconnect from server
+    db.close()
+
 
 # addBook("1234", "Suman Ghosh", "Dinesh", "ABP", 2020)
 # showBooks()
