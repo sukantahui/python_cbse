@@ -70,7 +70,7 @@ def addBook(serial, name, author, publisher, publication, member_id):
                                 )"""
     try:
         # Execute the SQL command
-        cursor.execute(sql,(serial, name, author, publisher, publication,member_id))
+        cursor.execute(sql, (serial, name, author, publisher, publication, member_id))
         # Commit your changes in the database
         print("done")
         db.commit()
@@ -188,7 +188,7 @@ def deleteBooks(book_id):
 
 
 # adding member functions
-def addMember(in_serial,in_name,in_phone, in_date):
+def addMember(in_serial, in_name, in_phone, in_date):
     # Open database connection
     db = pymysql.connect(host='localhost', database='library_db', user='root', password='sukantahui')
 
@@ -206,7 +206,7 @@ def addMember(in_serial,in_name,in_phone, in_date):
         )"""
     try:
         # Execute the SQL command
-        cursor.execute(sql,(in_serial,in_name,in_phone,in_date))
+        cursor.execute(sql, (in_serial, in_name, in_phone, in_date))
         # Commit your changes in the database
         print("Member added")
         db.commit()
@@ -216,6 +216,7 @@ def addMember(in_serial,in_name,in_phone, in_date):
 
     # disconnect from server
     db.close()
+
 
 def getMemberBySerial(in_serial):
     # Open database connection
@@ -231,15 +232,92 @@ def getMemberBySerial(in_serial):
         cursor.execute(sql, in_serial)
         # Fetch all the rows in a list of lists.
         row = cursor.fetchone()
-        if row == None:
-            return 0
+        if row is None:
+            pass
         else:
-            return row[0]
+            return row
 
     except:
         return 0
         print("Error: unable to fetch data")
 
+    # disconnect from server
+    db.close()
+
+
+def updateMember(in_id, in_name, in_phone):
+    # Open database connection
+    db = pymysql.connect(host='localhost', database='library_db', user='root', password='sukantahui')
+
+    # prepare a cursor object using cursor() method
+    cursor = db.cursor()
+
+    # Prepare SQL query to UPDATE required records
+    sql = "update members SET  member_name = %s ,phone = %s WHERE id = %s "
+
+    try:
+        # Execute the SQL command
+        cursor.execute(sql, (in_name, in_phone, in_id))
+        print('Member updated')
+        # Commit your changes in the database
+        db.commit()
+    except:
+        # Rollback in case there is any error
+        print('unable to update')
+        db.rollback()
+
+    # disconnect from server
+    db.close()
+
+
+def deleteMember(member_id):
+    # Open database connection
+    db = pymysql.connect(host='localhost', database='library_db', user='root', password='sukantahui')
+
+    # prepare a cursor object using cursor() method
+    cursor = db.cursor()
+
+    # Prepare SQL query to DELETE required records
+    sql = "delete from members where id = %s"
+    try:
+        # Execute the SQL command
+        cursor.execute(sql, (member_id))
+        # Commit your changes in the database
+        print("\t\t\t\tMember Deleted")
+        db.commit()
+    except:
+        # Rollback in case there is any error
+        db.rollback()
+
+    # disconnect from server
+    db.close()
+
+
+def showMembers():
+    # Open database connection
+    db = pymysql.connect(host='localhost', database='library_db', user='root', password='sukantahui')
+
+    # prepare a cursor object using cursor() method
+    cursor = db.cursor()
+
+    # Prepare SQL query to INSERT a record into the database.
+    sql = "select * from members where inforce=1 and display=1"
+    try:
+        # Execute the SQL command
+        cursor.execute(sql)
+        # Fetch all the rows in a list of lists.
+        results = cursor.fetchall()
+        for row in results:
+            member_id = row[0]
+            temp_serial = row[1]
+            temp_name = row[2]
+            temp_phone = row[3]
+            temp_doj = row[4]
+            # Now print fetched result
+            print("ID = %s,Serial = %s,Name = %s,Phone = %s,DOJ = %s" % (
+                member_id, temp_serial, temp_name, temp_phone, temp_doj))
+    except:
+        print("Error: unable to fetch data")
     # disconnect from server
     db.close()
 
@@ -292,7 +370,7 @@ while True:
                 author = input("\t\tAuthor Name: ")
                 publisher = input("\t\tPublisher: ")
                 edition = int(input("\t\tEdition: "))
-                addBook(serial, title, author, publisher, edition,1)
+                addBook(serial, title, author, publisher, edition, 1)
             if chBook == 2:
                 # showBooks()
                 book_serial = input("\t\tEnter Book serial to search: ")
@@ -333,4 +411,21 @@ while True:
                 name = input("\t\tMember Name: ")
                 phone = input("\t\tPhone: ")
                 now = datetime.datetime.utcnow()
-                addMember(serial,name,phone,now)
+                addMember(serial, name, phone, now)
+
+            if chMember == 2:
+                serial = input("Enter member serial to edit")
+                member = getMemberBySerial(serial)
+                print('You want to  update {0} and its contact is {1}'.format(member[2], member[3]))
+                name = input("New name for member")
+                phone = input("New phone for member")
+                updateMember(member[0], name, phone)
+            if chMember == 3:
+                serial = input("Enter member serial to delete")
+                member = getMemberBySerial(serial)
+                print('You want to  delete {0} and its contact is {1}'.format(member[2], member[3]))
+                deleteMember(member[0])
+
+            if chMember == 4:
+                print("Members are: ")
+                showMembers()
