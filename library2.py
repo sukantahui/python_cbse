@@ -112,7 +112,7 @@ def showBooks():
     db.close()
 
 
-def getBookBySerial(find_serial):
+def getBookIdBySerial(find_serial):
     # Open database connection
     db = pymysql.connect(host='localhost', database='library_db', user='root', password='sukantahui')
 
@@ -130,6 +130,30 @@ def getBookBySerial(find_serial):
             return 0
         else:
             return row[0]
+
+    except:
+        return 0
+        print("Error: unable to fetch data")
+
+    # disconnect from server
+    db.close()
+
+
+def getBookBySerial(find_serial):
+    # Open database connection
+    db = pymysql.connect(host='localhost', database='library_db', user='root', password='sukantahui')
+
+    # prepare a cursor object using cursor() method
+    cursor = db.cursor()
+
+    # Prepare SQL query to INSERT a record into the database.
+    sql = "SELECT * FROM books where serial = %s"
+    try:
+        # Execute the SQL command
+        cursor.execute(sql, find_serial)
+        # Fetch all the rows in a list of lists.
+        row = cursor.fetchone()
+        return row
 
     except:
         return 0
@@ -374,7 +398,7 @@ while True:
             if chBook == 2:
                 # showBooks()
                 book_serial = input("\t\tEnter Book serial to search: ")
-                book_id = getBookBySerial(book_serial)
+                book_id = getBookIdBySerial(book_serial)
                 if book_id == 0:
                     print("This serial does not exist")
                 else:
@@ -385,7 +409,7 @@ while True:
                     updateBooks(book_id, title, author, publisher, edition)
             if chBook == 3:
                 book_serial = input("\t\tEnter Book serial to search for delete: ")
-                book_id = getBookBySerial(book_serial)
+                book_id = getBookIdBySerial(book_serial)
                 if book_id == 0:
                     print("This serial does not exist")
                 else:
@@ -429,3 +453,27 @@ while True:
             if chMember == 4:
                 print("Members are: ")
                 showMembers()
+    if ch1 == 3:
+        while True:
+            print("\tTransaction Menu")
+            print("\t1. Assign book to Member")
+            print("\t2. Return book from Member")
+            print("\t9. Exit Book Menu")
+            chTransaction = int(input("Enter your Choice for Transaction: "))
+            if chTransaction == 9:
+                break
+            elif ch1 < 1 or ch1 > 2:
+                print("Wrong choice ...............")
+            if chTransaction == 1:
+                temp_book_serial = input("Enter book Serial: ")
+                book = getBookBySerial(temp_book_serial)
+                print('Book Title is {}, written by {} and published by {} edition year is {}'.format(book[2], book[3],
+                                                                                                      book[4], book[5]))
+                if book[6] == 1:
+                    print("This book is available in Library")
+                    temp_member_serial = input("Enter member serial: ")
+                    member = getMemberBySerial(temp_book_serial)
+                    print(member)
+                    print('Please wait assigning book {0} to member {1}'.format(book[2], member[2]))
+                else:
+                    print("This book is not available")
